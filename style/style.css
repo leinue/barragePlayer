@@ -48,6 +48,13 @@ header{
 	cursor: default;
 }
 
+.container-right{
+	float: right;
+	border-left:2px solid rgb(226,226,226);
+	height:520px;
+	width: 296px;
+}
+
 .right-top{
 	height: 74px;
 	background: rgb(253,253,253);
@@ -68,11 +75,55 @@ header{
 	height: 64px;
 }
 
-.container-right{
-	float: right;
-	border-left:2px solid rgb(226,226,226);
-	height:520px;
+.right-bottom{
+	height: 446px;
+}
+
+.right-bottom-top{
+	height: 23px;
+	background: rgb(248,248,248);
 	width: 296px;
+	font-size: 14px;
+	color: rgb(195,195,195);
+	border-bottom: 1px solid rgb(224,224,224);
+}
+
+.right-bottom-top ul{
+	font-size: 14px;
+	list-style: none;
+	margin: 0px;
+	margin-left: -34px;
+}
+
+#video-time{
+	width: 44px;
+	margin-left: -6px;
+}
+
+#comment{
+	width: 140px;
+}
+
+#send-time{
+	width: 86px;
+}
+
+.right-bottom-top ul li{
+	float: left;
+	margin-right: 0px;
+	height: 23px;
+	padding-left: 6px;
+}
+
+.right-bottom-top ul li:hover{
+	background: rgb(204,225,255);
+	cursor: default;
+}
+
+.right-bottom-list{
+	height: 93.72197%;
+	width: 296px;
+	background: rgb(255,255,255);
 }
 
 footer{
