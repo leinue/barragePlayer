@@ -14,22 +14,37 @@
 
 	<div class="container">
 		<div class="container-left">
-			<video src="k.flv" controls>
+			<video src="ly.mp4" type="video/mp4" controls>
 				Your browser dosen't support HTML5 Video
 			</video>
+			<div class="barrage">dssddsnjsk</div>
 		</div>
 		<div class="container-right">
-			
+			<div class="right-top">
+				<div class="right-top-left">
+					<span>弹幕:233</span>
+					<br/><br/><span>观众:23333</span>
+				</div>
+				<div class="right-top-right">
+					<span>预留地</span>
+				</div>
+			</div>
 		</div>
 	</div>
 
 	<footer>
-		<h5>Powered by <a href="http://ivydom.com">ivydom.com</a></h5>
+		<h5><span>Powered by <a href="http://ivydom.com">ivydom.com</a></span></h5>
 	</footer>
 	<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
 	<script type="text/javascript">
+		$(document).ready(function(){
 
-
+      		//为按钮,列表添加动画效果
+      		$('h3,h5 span').hover(
+        		function(){$(this).stop().animate({opacity:0.6},'fast');},
+        		function(){$(this).stop().animate({opacity:1},'fast');}
+      		);
+		});
 	</script>
 </body>
 </html>

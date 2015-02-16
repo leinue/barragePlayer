@@ -39,6 +39,35 @@ header{
 	height: 520px;
 }
 
+.barrage{
+	position: absolute;
+	top: 500px;
+}
+
+.barrage:hover{
+	cursor: default;
+}
+
+.right-top{
+	height: 74px;
+	background: rgb(253,253,253);
+	border-bottom: 2px solid rgb(226,226,226);
+}
+
+.right-top-left{
+	float: left;
+	width: 141px;
+	border-right: 1px solid rgb(226,226,226);
+	height: 66px;
+	padding: 5px;
+}
+
+.right-top-right{
+	float: left;
+	padding: 5px;
+	height: 64px;
+}
+
 .container-right{
 	float: right;
 	border-left:2px solid rgb(226,226,226);
