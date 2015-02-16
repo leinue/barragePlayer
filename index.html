@@ -64,6 +64,7 @@
       		//弹幕池
       		var barragesPool=
       		{
+      			'total':2,
       			'0.0':
       			{
       				'total':2,
@@ -75,6 +76,7 @@
       		//弹幕池的构造函数,b代表弹幕池数组
       		function BarragePool(b){
       			this.bp=b;
+      			this.bp['total']=0;
       		}
 
       		//增加弹幕
@@ -86,7 +88,7 @@
       			if(isVTime){
       				//获得vTime时间轴下的弹幕数量
       				var total=this.bp[vTime]['total'];
-      				this.bp[vTime]['total']=total+1;
+      				this.bp[vTime]['total']+=+1;
       				total+=1;
       			}else{
       				this.bp[vTime]={};
@@ -94,9 +96,43 @@
       				total=1;
       			}
 
+      			//弹幕总数加1
+      			this.bp['total']+=1;
+
       			//将弹幕加到bp数组中
       			this.bp[vTime][total]={'content':content,'time':time};
-      			return this.bp;
+      		}
+
+      		//删除弹幕
+      		//如果index为空但vTime不为空则删除vTime下所有弹幕
+      		//如果index不为空且vTime不为空,则删除vTime下key为index的弹幕
+      		BarragePool.prototype.del=function(vTime,index){
+      			var indexB=index || null;
+      			//如果vTime为空,则返回,什么也不作
+      			if(vTime=='undefined'){return;}
+
+      			//如果没有vTime则返回
+      			var isVTime=this.bp.hasOwnProperty(vTime);
+      			if(!isVTime){return;}
+
+      			//获得总弹幕数量,如果为0则返回什么都不做
+      			var totalBarrage=this.bp['vTime'];
+      			if(totalBarrage===0){return;}
+
+      			//如果index为空
+      			if(indexB==null){
+      				//先获得vTime下的弹幕数量
+      				var totalVAmount=this.bp[vTime]['total'];
+      				this.bp[vTime]=[];
+
+      				//重置总弹幕数量为当前数量减去删除的弹幕数量->totalVAmount
+      				this.bp['total']-=totalVAmount;
+      			}else{
+      				//如果index不为空
+      				this.bp[vTime][index]=[];
+      				this.bp['total']-=1;
+      				this.bp[vTime]['total']-=1;
+      			}
       		}
 
 
@@ -104,9 +140,18 @@
 
       		BP.add('0.1',"fuckbitch","2012");
       		BP.add('0.1',"hhhhhhhhhhh","2013");
+      		BP.add('0.2','hahahahahahaha','2015');
 
+      		console.log(barragesPool['total']);
       		console.log(barragesPool['0.1']['total']);
       		console.log(barragesPool['0.1'][2]);
+      		console.log(barragesPool['0.2'][1]);
+
+      		BP.del('0.2');
+      		console.log('删除0.2之后:',barragesPool['0.2']);
+      		BP.del('0.1',2);
+      		console.log('删除0.1下的2之后:',barragesPool['0.1']['total']);
+      		console.log('当前的弹幕总数量为:',barragesPool['total']);
 
       		var media=document.getElementById("video-main");
       		var duration=media.duration;
