@@ -22,7 +22,7 @@
 				<input type="text" placeholder="蛤蛤蛤蛤蛤蛤蛤蛤" />
 				<input type="button" value="发送">
 			</div>
-			<div class="barrage">哈哈哈哈哈哈哈hhhhhhh哈哈</div>
+			<div class="barrage" id="hhh1">哈哈哈哈哈哈哈hhhhhhh哈哈</div>
 		</div>
 		<div class="container-right">
 			<div class="right-top">
@@ -61,25 +61,69 @@
         		function(){$(this).stop().animate({opacity:1},400);}
       		);
 
+      		//弹幕池
+      		var barragePool=
+      		{
+      			'0.0':
+      			{
+      				'total':2,
+      				0:{'content':"fuck",'time':'2015-02-16 20:00:00'},
+      				1:{'content':"shit",'time':'2015-02-16 20:20:00'}
+      			}
+      		};
+
+      		console.log(barragePool['0.0']['total']);
+
+      		barragePool['0.1']={0:{'content':"fuck",'time':'2015-02-16 20:00:00'}};
+
+      		console.log(barragePool['0.1'][0]);
+
       		var media=document.getElementById("video-main");
       		var duration=media.duration;
       		var startTime=media.startTime;
       		var currentTime;
       		var timeRemaining;
 
+      		function displayBarrage(startX,startY,endX){
+   				var top=(startX=='')?'100':startX;
+   				var left=(startY=='')?'820':startY;
+
+   				console.log(top);
+
+   				$('.barrage').css('left',left).css('top',top);
+   				$('.barrage').animate({
+           			left:endX+'px'
+           		},5500,function(){
+           			$(this).hide();
+           		});
+   			}
+
+   			function getEndX(id){
+				//弹幕x轴
+           		var itemLeft=$('#'+id).css('left').split('px')[0];
+           		//video的宽度,这里不使用硬编码是为了日后方便
+           		var videoWidth=$('.container').css('width').split('px')[0];
+           		//字符串的长度
+           		var charWidth=$('#'+id).css('width').split('px')[0];
+           		//结束X坐标是视频宽度-弹幕X轴-字符串长度
+           		var endPos=videoWidth-itemLeft-charWidth;
+           		return endPos;
+   			}
+
       		var eventListener=function(e){
        			media.addEventListener(e,function(){
            			switch(e){
            				case 'play':
-           					var itemLeft=$('.barrage').css('left').split('px')[0];
-           					var videoWidth=$('.container').css('width').split('px')[0];
-           					var charFontSize=$('.barrage').css('fontSize').split('px')[0];
-           					var charLength=($('.barrage').html().length)*charFontSize;
-           					var endPos=videoWidth-itemLeft-charLength;
-           					$('.barrage').animate({
-           						left:endPos+'px'
-           					},
-           					5500);
+           				  	var endPos=getEndX('hhh1');
+
+           					//字符串高度
+           					var charHeight=$('.barrage').css('fontSize').split('px')[0];
+           					console.log(endPos);
+           					//displayBarrage('500','500',endPos);
+           					break;
+           				case 'pause':
+           					console.log('dsds');
+           					$(".barrage").stop();
            					break;
            				default:
            					break;
@@ -92,12 +136,16 @@
   				var vTime=media.currentTime;
   				currentTime=vTime.toFixed(1);
   				timeRemaining=(duration-vTime).toFixed(1);
+
+  				var endPos=getEndX('hhh1');
+  				displayBarrage('500','500',endPos);
+
   				console.log(currentTime,timeRemaining);
 			}, false);
 
       		eventListener('play');
       		eventListener('pause');
-      		eventListener('timeupdate');
+      		//eventListener('timeupdate');
       		eventListener('ended');
       		
 		});
