@@ -36,7 +36,7 @@ header{
 
 .container-left video{
 	width: 680px;
-	height: 520px;
+	height: 495px;
 }
 
 .barrage{
@@ -46,6 +46,48 @@ header{
 
 .barrage:hover{
 	cursor: default;
+}
+
+.container-bottom{
+	height: 25px;
+	width: 100%;
+	border-top: rgb(226,226,226);
+	margin-top: -4px;
+}
+
+.video-bottom-left{
+	float: left;
+	border-right: 1px solid rgb(233,233,233);
+	width: 80px;
+	height: 25px;
+}
+
+.container-bottom input[type="text"]{
+	border: none;
+	height: 23px;
+	width: 527px;
+	margin: 0px;
+	box-shadow: 2px 2px 10px rgb(248,248,248) inset;
+}
+
+.container-bottom input[type="text"]:focus{
+	box-shadow: 2px 2px 10px rgb(233,233,233) inset;
+}
+
+.container-bottom input[type="button"]{
+	color: rgb(255,255,255);
+	border: none;
+	background: rgb(0,160,213);
+	height: 25px;
+	font-family: "微软雅黑";
+	margin-left: -5px;
+	width: 70px;
+	float: right;
+}
+
+.container-bottom input[type="button"]:hover{
+	background: rgb(50,179,211);
+	cursor: pointer;
 }
 
 .container-right{
@@ -84,7 +126,7 @@ header{
 	background: rgb(248,248,248);
 	width: 296px;
 	font-size: 14px;
-	color: rgb(195,195,195);
+	color: rgb(106,106,106);
 	border-bottom: 1px solid rgb(224,224,224);
 }
 
