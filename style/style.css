@@ -41,7 +41,8 @@ header{
 
 .barrage{
 	position: absolute;
-	top: 500px;
+	top: 100px;
+	left: 800px;
 	color: rgb(255,255,255);
 	font-size: 22px;
 }

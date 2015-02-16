@@ -22,7 +22,7 @@
 				<input type="text" placeholder="蛤蛤蛤蛤蛤蛤蛤蛤" />
 				<input type="button" value="发送">
 			</div>
-			<div class="barrage">ddsds</div>
+			<div class="barrage">哈哈哈哈哈哈哈hhhhhhh哈哈</div>
 		</div>
 		<div class="container-right">
 			<div class="right-top">
@@ -64,12 +64,36 @@
       		var media=document.getElementById("video-main");
       		var duration=media.duration;
       		var startTime=media.startTime;
+      		var currentTime;
+      		var timeRemaining;
 
       		var eventListener=function(e){
        			media.addEventListener(e,function(){
-           			console.log(e);
+           			switch(e){
+           				case 'play':
+           					var itemLeft=$('.barrage').css('left').split('px')[0];
+           					var videoWidth=$('.container').css('width').split('px')[0];
+           					var charFontSize=$('.barrage').css('fontSize').split('px')[0];
+           					var charLength=($('.barrage').html().length)*charFontSize;
+           					var endPos=videoWidth-itemLeft-charLength;
+           					$('.barrage').animate({
+           						left:endPos+'px'
+           					},
+           					5500);
+           					break;
+           				default:
+           					break;
+           			}
        			});
    			}
+
+   			//监视现在播放进度和剩余时间
+			media.addEventListener("timeupdate",function(){ 
+  				var vTime=media.currentTime;
+  				currentTime=vTime.toFixed(1);
+  				timeRemaining=(duration-vTime).toFixed(1);
+  				console.log(currentTime,timeRemaining);
+			}, false);
 
       		eventListener('play');
       		eventListener('pause');
