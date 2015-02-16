@@ -23,7 +23,7 @@ header{
 
 .container{
 	border:1px solid rgb(226,226,226);
-	height: 520px;
+	height: 545px;
 	margin-bottom: 10px;
 	box-shadow: 1px 2px 2px rgb(220,220,220);
 }
@@ -36,12 +36,14 @@ header{
 
 .container-left video{
 	width: 680px;
-	height: 495px;
+	height: 520px;
 }
 
 .barrage{
 	position: absolute;
 	top: 500px;
+	color: rgb(255,255,255);
+	font-size: 22px;
 }
 
 .barrage:hover{
@@ -63,6 +65,7 @@ header{
 }
 
 .container-bottom input[type="text"]{
+	font-family: "微软雅黑";
 	border: none;
 	height: 23px;
 	width: 527px;
@@ -170,7 +173,7 @@ header{
 
 footer{
 	position: absolute;
-	bottom: -20px;
+	bottom: -40px;
 	margin-top: 10px;
 	text-align: center;
 	width: 980px;
