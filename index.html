@@ -62,27 +62,59 @@
       		);
 
       		//弹幕池
-      		var barragePool=
+      		var barragesPool=
       		{
       			'0.0':
       			{
       				'total':2,
-      				0:{'content':"fuck",'time':'2015-02-16 20:00:00'},
-      				1:{'content':"shit",'time':'2015-02-16 20:20:00'}
+      				1:{'content':"fuck",'time':'2015-02-16 20:00:00'},
+      				2:{'content':"shit",'time':'2015-02-16 20:20:00'}
       			}
       		};
 
-      		console.log(barragePool['0.0']['total']);
+      		//弹幕池的构造函数,b代表弹幕池数组
+      		function BarragePool(b){
+      			this.bp=b;
+      		}
 
-      		barragePool['0.1']={0:{'content':"fuck",'time':'2015-02-16 20:00:00'}};
+      		//增加弹幕
+      		BarragePool.prototype.add=function(vTime,content,time){
+      			//判断时间轴vTime上是否有弹幕
+      			var isVTime=this.bp.hasOwnProperty(vTime);
 
-      		console.log(barragePool['0.1'][0]);
+      			//如果vTime存在,则直接获得时间轴下的弹幕数量并往上加1,否则初始化时间轴数组并且设置total为1
+      			if(isVTime){
+      				//获得vTime时间轴下的弹幕数量
+      				var total=this.bp[vTime]['total'];
+      				this.bp[vTime]['total']=total+1;
+      				total+=1;
+      			}else{
+      				this.bp[vTime]={};
+      				this.bp[vTime]['total']=1;
+      				total=1;
+      			}
+
+      			//将弹幕加到bp数组中
+      			this.bp[vTime][total]={'content':content,'time':time};
+      			return this.bp;
+      		}
+
+
+      		var BP=new BarragePool(barragesPool);
+
+      		BP.add('0.1',"fuckbitch","2012");
+      		BP.add('0.1',"hhhhhhhhhhh","2013");
+
+      		console.log(barragesPool['0.1']['total']);
+      		console.log(barragesPool['0.1'][2]);
 
       		var media=document.getElementById("video-main");
       		var duration=media.duration;
       		var startTime=media.startTime;
       		var currentTime;
       		var timeRemaining;
+
+      		console.log(duration);
 
       		function displayBarrage(startX,startY,endX){
    				var top=(startX=='')?'100':startX;
