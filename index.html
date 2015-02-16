@@ -14,15 +14,15 @@
 
 	<div class="container">
 		<div class="container-left">
-			<video src="ly.mp4" type="video/mp4" controls>
+			<video id="video-main" src="ly.mp4" type="video/mp4" controls>
 				Your browser dosen't support HTML5 Video
 			</video>
-			<div class="barrage">ddsds</div>
 			<div class="container-bottom">
 				<div class="video-bottom-left">输入弹幕:</div>
 				<input type="text" placeholder="蛤蛤蛤蛤蛤蛤蛤蛤" />
 				<input type="button" value="发送">
 			</div>
+			<div class="barrage">ddsds</div>
 		</div>
 		<div class="container-right">
 			<div class="right-top">
@@ -60,6 +60,22 @@
         		function(){$(this).stop().animate({opacity:0.6},400);},
         		function(){$(this).stop().animate({opacity:1},400);}
       		);
+
+      		var media=document.getElementById("video-main");
+      		var duration=media.duration;
+      		var startTime=media.startTime;
+
+      		var eventListener=function(e){
+       			media.addEventListener(e,function(){
+           			console.log(e);
+       			});
+   			}
+
+      		eventListener('play');
+      		eventListener('pause');
+      		eventListener('timeupdate');
+      		eventListener('ended');
+      		
 		});
 	</script>
 </body>
