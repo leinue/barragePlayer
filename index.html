@@ -65,17 +65,16 @@
       		/*******************************************数据结构*********************************************/
 
       		//弹幕池
-      		var barragesPool=
-      		{
-      			'total':2,
-      			'0.0':
-      			{
-      				'total':2,
-      				1:{'content':"fuck",'time':'2015-02-16 20:00:00'},
-      				2:{'content':"shit",'time':'2015-02-16 20:20:00'}
-      			}
-      		};
-
+      		/*弹幕池结构
+      		*struct
+      		*{
+      		*	'total':1,
+      		*	'vTime':{
+			*		'total':1,
+			*		1:{'content':'this is the content','time':'2015-02-16 20:00:00'}
+      		*	}
+      		*}
+      		**/
       		//弹幕池的构造函数,b代表弹幕池数组
       		function BarragePool(b){
       			this.bp=b;
@@ -187,7 +186,7 @@
       		}
 
 
-      		var BP=new BarragePool(barragesPool);
+      		/*var BP=new BarragePool(barragesPool);
 
       		BP.add('0.1',"fuckbitch","2012");
       		BP.add('0.1',"hhhhhhhhhhh","2013");
@@ -204,20 +203,38 @@
       		console.log('删除0.1下的2之后:',barragesPool['0.1']['total']);
       		console.log('当前的弹幕总数量为:',barragesPool['total']);*/
 
-      		console.log(BP.get('0.1',1));
+      		/*console.log(BP.get('0.1',1));
       		console.log(BP.toJSON());
-      		console.log(BP.format('barrage','hhh','','0.1',1));
+      		console.log(BP.format('barrage','hhh','','0.1',1));*/
 
       		/*******************************************数据结构*********************************************/
 
-      		var media=document.getElementById("video-main");
-      		var duration=media.duration;
-      		var startTime=media.startTime;
-      		var currentTime;
-      		var timeRemaining;
+      		var media=document.getElementById("video-main");//获得播放器
+      		var duration=media.duration;//获得视频时长
+      		var startTime=media.startTime;//获得视频开始时间
+      		var videoCurrentTime;//视频当前时间
+      		var timeRemaining;//视频剩余时间
 
-      		console.log(duration);
+      		var barragesPool={};//弹幕池
+      		var BP=new BarragePool(barragesPool);//新建弹幕池对象
 
+      		//获取当前时间
+      		function getCurrentTime(){
+      			var myDate = new Date();
+      			var month=myDate.getMonth()+1;
+      			var date=myDate.getDate();
+      			var hours=myDate.getHours();
+      			var minutes=myDate.getMinutes();
+      			var seconds=myDate.getSeconds();
+      			month=(month<10)?'0'+month:month;
+      			date=(date<10)?'0'+date:date;
+      			hours=(hours<10)?'0'+hours:hours;
+      			minutes=(minutes<10)?'0'+minutes:minutes;
+      			seconds=(seconds<10)?'0'+seconds:seconds;
+      			return myDate.getFullYear()+'-'+month+'-'+date+' '+hours+':'+minutes+':'+seconds;
+      		}
+
+      		//在视频上显示弹幕
       		function displayBarrage(startX,startY,endX){
    				var top=(startX=='')?'100':startX;
    				var left=(startY=='')?'820':startY;
@@ -232,6 +249,7 @@
            		});
    			}
 
+   			//获得结束X坐标
    			function getEndX(id){
 				//弹幕x轴
            		var itemLeft=$('#'+id).css('left').split('px')[0];
@@ -243,6 +261,23 @@
            		var endPos=videoWidth-itemLeft-charWidth;
            		return endPos;
    			}
+
+   			//获得弹幕输入框内容
+   			function getBarrageInput(){
+   				return $('.container-bottom input[type=text]').val();
+   			}
+
+   			//绑定发送弹幕按钮的点击事件
+   			$('.container-bottom input[type=button]').click(function(){
+   				//获得输入的弹幕数据
+   				var inputBarrage=getBarrageInput();
+   				//如果输入的弹幕不为空
+   				if(inputBarrage!=null){
+   					//在弹幕池里加入弹幕
+   					BP.add(videoCurrentTime,inputBarrage,getCurrentTime());
+   					console.log(getCurrentTime());
+   				}
+   			});
 
       		var eventListener=function(e){
        			media.addEventListener(e,function(){
@@ -268,13 +303,13 @@
    			//监视现在播放进度和剩余时间
 			media.addEventListener("timeupdate",function(){ 
   				var vTime=media.currentTime;
-  				currentTime=vTime.toFixed(1);
+  				videoCurrentTime=vTime.toFixed(1);
   				timeRemaining=(duration-vTime).toFixed(1);
 
   				var endPos=getEndX('hhh1');
   				displayBarrage('500','500',endPos);
 
-  				console.log(currentTime,timeRemaining);
+  				console.log(videoCurrentTime,timeRemaining);
 			}, false);
 
       		eventListener('play');
