@@ -293,12 +293,12 @@
 			}
 
       		//在视频上显示弹幕
-      		function displayBarrage(startX,startY,endX){
+      		function displayBarrage(id,startX,startY,endX){
    				var top=(startX==null)?'100':startX;
    				var left=(startY==null)?'820':startY;
 
-   				$('.barrage').css('left',left).css('top',top);
-   				$('.barrage').animate({
+   				$('#'+id).css('left',left).css('top',top);
+   				$('#'+id).animate({
            			left:endX+'px'
            		},5500,function(){
            			$(this).hide();
@@ -330,7 +330,7 @@
    					if(vct==null){vct='0.0';}
 
    					BP.add(vct,inputBarrage,getCurrentTime());
-   					var barrageHTML=BP.format('barrage',RandomID(10),'',vct);
+   					var barrageHTML=BP.format('barrage',RandomID(16),'',vct);
    					console.log(BP.toJSON());
    					$('.container-left').append(barrageHTML);
    				}
@@ -360,22 +360,30 @@
   				//var endPos=getEndX('hhh1');
   				//获得现行时间轴下弹幕的总数量
   				var total=BP.getTotal(videoCurrentTime);
-  				console.log('total',total,'current',videoCurrentTime);
 
-  				var currentDanmaku;
-  				//displayBarrage('500','500',endPos);
+  				var currentDanmaku;//记录现行弹幕数据
+  				var idRandomed;//记录被随机生成的ID
+
+  				//根据时间轴下的弹幕数量进行循环显示
   				for(var i=1;i<=total;i++){
+  					//获得现行时间轴下的弹幕数据
   					currentDanmaku=BP.get(videoCurrentTime,i);
-  					console.log(videoCurrentTime,i,currentDanmaku);
+  					//随机生成一个ID
+  					idRandomed=RandomID(16);
+  					//将现行弹幕数据格式化为HTML文本
+  					var barrageHTML=BP.format('barrage',idRandomed,'',videoCurrentTime);
+  					//将格式化的HTML文本加到容器内
+  					$('.container-left').append(barrageHTML);
+  					//显示弹幕
+  					displayBarrage(idRandomed,null,null,endPos);
+  					console.log(barrageHTML);
   				}
   				
-
   				//console.log(videoCurrentTime,timeRemaining);
 			}, false);
 
       		eventListener('play');
       		eventListener('pause');
-      		//eventListener('timeupdate');
       		eventListener('ended');
       		
 		});
