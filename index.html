@@ -51,6 +51,7 @@
 	<footer>
 		<h5><span>Powered by <a href="http://ivydom.com" target="_blank">ivydom.com</a></span></h5>
 	</footer>
+
 	<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -80,6 +81,9 @@
       		}
 
       		//增加弹幕
+      		//vTime为视频时间轴,一般为0.1,0.2,0.3....
+      		//content为弹幕内容
+      		//time为弹幕发送时间
       		BarragePool.prototype.add=function(vTime,content,time){
       			//判断时间轴vTime上是否有弹幕
       			var isVTime=this.bp.hasOwnProperty(vTime);
@@ -116,7 +120,7 @@
       			if(!isVTime){return;}
 
       			//获得总弹幕数量,如果为0则返回什么都不做
-      			var totalBarrage=this.bp['vTime'];
+      			var totalBarrage=this.bp['total'];
       			if(totalBarrage===0){return;}
 
       			//如果index为空
@@ -132,6 +136,32 @@
       				this.bp[vTime][index]=[];
       				this.bp['total']-=1;
       				this.bp[vTime]['total']-=1;
+      			}
+      		}
+
+      		//得到某时间轴的弹幕
+      		//vTime为视频时间轴,index为vTime下的弹幕索引
+      		//如果vTime为空则直接返回
+      		//如果index为空则返回vTime下所有弹幕,如果index不为空则返回vTime下第index个弹幕
+      		BarragePool.prototype.get=function(vTime,index){
+      			if(vTime==null){return;}
+
+      			//如果没有vTime则返回
+      			var isVTime=this.bp.hasOwnProperty(vTime);
+      			if(!isVTime){return;}
+
+      			//获得总弹幕数量,如果为0则返回什么都不做
+      			var totalBarrage=this.bp['total'];
+      			if(totalBarrage===0){return;}
+
+      			if(index==null){
+      				return this.bp[vTime];
+      			}else{
+      				//先获得vTime下弹幕总数量
+      				var vTimeTotal=this.bp[vTime]['total'];
+      				//如果index大于vTimeTotal或者小于0则直接返回
+      				if(index>vTimeTotal || index<0){return;}
+      				return this.bp[vTime][index];
       			}
       		}
 
