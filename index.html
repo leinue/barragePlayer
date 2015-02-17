@@ -248,10 +248,12 @@
       		BP.add('0.0',"hhhhhhhhhhh","2013");
       		BP.add('0.0',"蛤蛤蛤","2013");
       		BP.add('0.0',"蛤蛤蛤蛤蛤蛤","2013");
-      		BP.add('0.1',"蛤蛤蛤蛤蛤蛤蛤蛤蛤","2013");
-      		BP.add('0.1',"蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤","2013");
-      		BP.add('0.2','hahahahahahaha','2015');
-      		BP.add('0.2','hahahahhhhhhhhhhhhahahaha','2015');
+      		BP.add('0.3',"蛤蛤蛤蛤蛤蛤蛤蛤蛤","2013");
+      		BP.add('0.3',"蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤","2013");
+      		BP.add('0.6','hahahahahahaha','2015');
+      		BP.add('0.6','hahahahhhhhhhhhhhhahahaha','2015');
+
+      		console.log(BP.toJSON());
 
       		//获取当前时间
       		function getCurrentTime(){
@@ -329,7 +331,6 @@
 
    					BP.add(vct,inputBarrage,getCurrentTime());
    					var barrageHTML=BP.format('barrage',RandomID(10),'',vct);
-   					console.log(barrageHTML);
    					console.log(BP.toJSON());
    					$('.container-left').append(barrageHTML);
    				}
@@ -339,6 +340,7 @@
        			media.addEventListener(e,function(){
            			switch(e){
            				case 'play':
+           					console.log(e);
            					break;
            				case 'pause':
            					$(".barrage").stop();
@@ -351,14 +353,24 @@
 
    			//监视现在播放进度和剩余时间
 			media.addEventListener("timeupdate",function(){ 
-  				var vTime=media.currentTime;
-  				videoCurrentTime=vTime.toFixed(1);
-  				timeRemaining=(duration-vTime).toFixed(1);
+  				var vTime=media.currentTime;//视频现在的时间轴
+  				videoCurrentTime=vTime.toFixed(1);//修正时间,精确到0.1即可
+  				timeRemaining=(duration-vTime).toFixed(1);//视频剩余时间
 
-  				var endPos=getEndX('hhh1');
+  				//var endPos=getEndX('hhh1');
+  				//获得现行时间轴下弹幕的总数量
+  				var total=BP.getTotal(videoCurrentTime);
+  				console.log('total',total,'current',videoCurrentTime);
+
+  				var currentDanmaku;
   				//displayBarrage('500','500',endPos);
+  				for(var i=1;i<=total;i++){
+  					currentDanmaku=BP.get(videoCurrentTime,i);
+  					console.log(videoCurrentTime,i,currentDanmaku);
+  				}
+  				
 
-  				console.log(videoCurrentTime,timeRemaining);
+  				//console.log(videoCurrentTime,timeRemaining);
 			}, false);
 
       		eventListener('play');
