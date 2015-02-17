@@ -9,7 +9,7 @@
 
 <body>
 	<header>
-		<h3>HTML5 Barrage Player</h3>
+		<h3>HTML5 Danmaku Player</h3>
 	</header>
 
 	<div class="container">
@@ -25,7 +25,7 @@
 			<div class="barrage" id="hhh1">哈哈哈哈哈哈哈hhhhhhh哈哈</div>
 		</div>
 		<div class="container-right">
-			<div class="right-top">
+			<!--<div class="right-top">
 				<div class="right-top-left">
 					<span>弹幕:233</span>
 					<br/><span>观众:23333</span>
@@ -34,7 +34,7 @@
 				<div class="right-top-right">
 					<span>预留地</span>
 				</div>
-			</div>
+			</div>-->
 			<div class="right-bottom">
 				<div class="right-bottom-top">
 					<ul>
@@ -47,7 +47,6 @@
 			</div>
 		</div>
 	</div>
-
 	<footer>
 		<h5><span>Powered by <a href="http://ivydom.com" target="_blank">ivydom.com</a></span></h5>
 	</footer>
@@ -192,6 +191,20 @@
       			return html;
       		}
 
+      		//获得弹幕总数
+      		//如果vTime为空,则返回全部弹幕数量,否则返回vTime下的弹幕数量
+      		BarragePool.prototype.getTotal=function(vTime){
+      			if(vTime==null){
+      				return this.bp['total'];
+      			}else{
+      				//如果没有vTime则返回
+      				var isVTime=this.bp.hasOwnProperty(vTime);
+      				if(!isVTime){return;}
+
+      				return this.bp[vTime]['total'];
+      			}
+      		}
+
       		//遍历弹幕池
       		BarragePool.prototype.each=function(){
 
@@ -230,6 +243,16 @@
       		var barragesPool={};//弹幕池
       		var BP=new BarragePool(barragesPool);//新建弹幕池对象
 
+      		//初始化弹幕池数据
+      		BP.add('0.0',"fuckbitch","2012");
+      		BP.add('0.0',"hhhhhhhhhhh","2013");
+      		BP.add('0.0',"蛤蛤蛤","2013");
+      		BP.add('0.0',"蛤蛤蛤蛤蛤蛤","2013");
+      		BP.add('0.1',"蛤蛤蛤蛤蛤蛤蛤蛤蛤","2013");
+      		BP.add('0.1',"蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤","2013");
+      		BP.add('0.2','hahahahahahaha','2015');
+      		BP.add('0.2','hahahahhhhhhhhhhhhahahaha','2015');
+
       		//获取当前时间
       		function getCurrentTime(){
       			var myDate = new Date();
@@ -252,10 +275,25 @@
    				return $('.container-bottom input[type=text]').val();
    			}
 
+   			//随机生成ID
+   			//cLength代表要生成的ID长度
+   			function RandomID(cLength){
+				var length=cLength;
+				var chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ1234567890"; 
+
+				var randomChars = ""; 
+
+				for(x=0;x<length;x++){ 
+					var i=Math.floor(Math.random()*chars.length); 
+					randomChars += chars.charAt(i); 
+				} 
+				return 'd' + randomChars;
+			}
+
       		//在视频上显示弹幕
       		function displayBarrage(startX,startY,endX){
-   				var top=(startX=='')?'100':startX;
-   				var left=(startY=='')?'820':startY;
+   				var top=(startX==null)?'100':startX;
+   				var left=(startY==null)?'820':startY;
 
    				$('.barrage').css('left',left).css('top',top);
    				$('.barrage').animate({
@@ -286,15 +324,14 @@
    				if(inputBarrage!=null){
    					//在弹幕池里加入弹幕
    					var vct=videoCurrentTime;//这个时间一直在变化,所以需要一个变量记录
-   					if(vct==null){
-   						vct='0.0';
-   					}
+
+   					if(vct==null){vct='0.0';}
+
    					BP.add(vct,inputBarrage,getCurrentTime());
-   					console.log('vct=',vct);
-   					var barrageHTML=BP.format('barrage','hhh','',vct);
+   					var barrageHTML=BP.format('barrage',RandomID(10),'',vct);
    					console.log(barrageHTML);
+   					console.log(BP.toJSON());
    					$('.container-left').append(barrageHTML);
-   					console.log(getCurrentTime());
    				}
    			});
 
@@ -302,15 +339,8 @@
        			media.addEventListener(e,function(){
            			switch(e){
            				case 'play':
-           				  	var endPos=getEndX('hhh1');
-
-           					//字符串高度
-           					var charHeight=$('.barrage').css('fontSize').split('px')[0];
-           					console.log(endPos);
-           					//displayBarrage('500','500',endPos);
            					break;
            				case 'pause':
-           					console.log('dsds');
            					$(".barrage").stop();
            					break;
            				default:
@@ -326,7 +356,7 @@
   				timeRemaining=(duration-vTime).toFixed(1);
 
   				var endPos=getEndX('hhh1');
-  				displayBarrage('500','500',endPos);
+  				//displayBarrage('500','500',endPos);
 
   				console.log(videoCurrentTime,timeRemaining);
 			}, false);
