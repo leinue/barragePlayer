@@ -22,7 +22,6 @@
 				<input type="text" placeholder="蛤蛤蛤蛤蛤蛤蛤蛤" />
 				<input type="button" value="发送">
 			</div>
-			<div class="barrage" id="hhh1">哈哈哈哈哈哈哈hhhhhhh哈哈</div>
 		</div>
 		<div class="container-right">
 			<!--<div class="right-top">
@@ -239,6 +238,7 @@
       		var startTime=media.startTime;//获得视频开始时间
       		var videoCurrentTime;//视频当前时间
       		var timeRemaining;//视频剩余时间
+      		var videoOnPlaying=false;//记录视频是否已经在播放
 
       		var barragesPool={};//弹幕池
       		var BP=new BarragePool(barragesPool);//新建弹幕池对象
@@ -293,8 +293,7 @@
 			}
 
       		//在视频上显示弹幕
-      		function displayBarrage(id,startX,startY,endX){
-   				var left=(startX==null)?'866':startX;
+      		function displayBarrage(id,startY,endX){
    				var top=(startY==null)?'100':startY;
 
    				$('#'+id).animate({
@@ -315,7 +314,6 @@
            		var charWidth=$('#'+id).width();
            		//结束X坐标是弹幕X轴-视频宽度-字符串长度
            		var endPos=parseInt(itemLeft)-parseInt(videoWidth)-parseInt(charWidth);
-           		console.log(endPos);
            		return endPos;
    			}
 
@@ -328,13 +326,34 @@
    			//设置弹幕开始的X坐标
    			function setStartX(id){
    				var x=parseInt(getVideoWidth())+parseInt(getVideoLeft());
-   				console.log(x);
    				$('#'+id).css('left',x+'px');
    			}
 
+   			//获得上一条弹幕的结束时间
+   			//参数duration表示弹幕运行时间,单位毫秒,默认值是5500
+   			function prevDanmakuEndTime(duration){
+   				duration=(duration==null)?'5500':duration;
+   				var timestamp=new Date().getTime()//得到当前时间的毫秒时间戳
+   				//上一条弹幕的时间戳就是当前时间戳加上弹幕运行的毫秒
+   				return parseInt(timestamp)+parseInt(duration);
+   			}
+
+   			//获得当前弹幕左端碰到屏幕左边缘的时间
+   			//时间=路程(宽度-字符串长度[像素])/速度,速度=路程(宽度)/时间
+   			//最终公式:((视频宽度-字符串宽度)*弹幕运行时间)/视频宽度[宽度单位为像素]
+   			//duration为弹幕运行时间,默认为5500毫秒
+   			function getCurrentDanmakuToLeftTime(id,duration){
+   				var vWidth=getVideoWidth();
+   				var charLength=$('#'+id).width();
+   				duration=(duration==null)?'5500':duration;
+   				return ((parseInt(vWidth)-parseInt(charLength))*parseInt(duration))/parseInt(vWidth);
+   			}
+
+   			console.log(getCurrentDanmakuToLeftTime());
+
    			//获得开始Y坐标
    			//上一个弹幕的结束时间小于等于现在这个弹幕左端碰到屏幕左边缘的时间那么就不会碰撞
-   			function getStartY(currentID,willID){
+   			function getStartY(previousID,currentID){
 
    			}
 
@@ -363,9 +382,13 @@
    					$('.container-left').append(barrageHTML);
 
    					var endX=getEndX(idr);
+   					setStartX(idr);
 
-   					//显示弹幕
-   					displayBarrage(idr,null,null,endX);
+   					if(videoOnPlaying){
+   						//显示弹幕
+   						displayBarrage(idr,null,endX);
+   					}
+   					
    				}
    			});
 
@@ -373,9 +396,10 @@
        			media.addEventListener(e,function(){
            			switch(e){
            				case 'play':
-           					console.log(e);
+           					videoOnPlaying=true;
            					break;
            				case 'pause':
+           					videoOnPlaying=false;
            					$(".barrage").stop();
            					break;
            				default:
@@ -386,6 +410,7 @@
 
    			//监视现在播放进度和剩余时间
 			media.addEventListener("timeupdate",function(){
+				videoOnPlaying=true;
   				var vTime=media.currentTime;//视频现在的时间轴
   				videoCurrentTime=vTime.toFixed(1);//修正时间,精确到0.1即可
   				timeRemaining=(duration-vTime).toFixed(1);//视频剩余时间
@@ -407,12 +432,16 @@
   					var barrageHTML=BP.format('barrage',idRandomed,'',videoCurrentTime);
   					//将格式化的HTML文本加到容器内
   					$('.container-left').append(barrageHTML);
+
+
+
   					//获得结束坐标
   					var endX=getEndX(idRandomed);
   					//显示弹幕
-  					setStartX(idRandomed);
-  					$('#'+idRandomed).css('top','300px');
-  					displayBarrage(idRandomed,null,'300',endX);
+  					setStartX(idRandomed);//设置开始X坐标
+  					//设置Y坐标
+  					$('#'+idRandomed).css('top','100px');
+  					displayBarrage(idRandomed,'100',endX);
   				}
   				
   				//console.log(videoCurrentTime,timeRemaining);
