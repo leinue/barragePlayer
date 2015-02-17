@@ -62,6 +62,8 @@
         		function(){$(this).stop().animate({opacity:1},400);}
       		);
 
+      		/*******************************************数据结构*********************************************/
+
       		//弹幕池
       		var barragesPool=
       		{
@@ -165,6 +167,25 @@
       			}
       		}
 
+      		//JSON化
+      		BarragePool.prototype.toJSON=function(){
+      			return JSON.stringify(this.bp);
+      		}
+
+      		//格式化,主要是格式化为HTML(div)
+      		//class为div的类,,id为div的id,style为样式表
+      		//在正式使用时class,id不推荐为空
+      		//vTime,index不能为空
+      		BarragePool.prototype.format=function(cls,id,style,vTime,index){
+      			if(vTime==null || index==null){return;}
+      			var singleBarrage=this.get(vTime,index);
+      			var html='<div ';
+      			html+='class="'+cls+'" id="'+id+'" style="'+style+'">';
+      			html+=singleBarrage['content'];
+      			html+="</div>";
+      			return html;
+      		}
+
 
       		var BP=new BarragePool(barragesPool);
 
@@ -177,11 +198,17 @@
       		console.log(barragesPool['0.1'][2]);
       		console.log(barragesPool['0.2'][1]);
 
-      		BP.del('0.2');
+      		/*BP.del('0.2');
       		console.log('删除0.2之后:',barragesPool['0.2']);
       		BP.del('0.1',2);
       		console.log('删除0.1下的2之后:',barragesPool['0.1']['total']);
-      		console.log('当前的弹幕总数量为:',barragesPool['total']);
+      		console.log('当前的弹幕总数量为:',barragesPool['total']);*/
+
+      		console.log(BP.get('0.1',1));
+      		console.log(BP.toJSON());
+      		console.log(BP.format('barrage','hhh','','0.1',1));
+
+      		/*******************************************数据结构*********************************************/
 
       		var media=document.getElementById("video-main");
       		var duration=media.duration;
