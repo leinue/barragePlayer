@@ -308,19 +308,32 @@
    			//获得结束X坐标
    			function getEndX(id){
 				//弹幕x轴
-           		var itemLeft=$('#'+id).css('left').split('px')[0];
+           		var itemLeft=$('#'+id).offset().left.toFixed(0);
            		//video的宽度,这里不使用硬编码是为了日后video大小可以随意改变时方便
-           		var videoWidth=$('.container').css('width').split('px')[0];
+           		var videoWidth=$('.container-left').width();
            		//字符串的长度
-           		var charWidth=$('#'+id).css('width').split('px')[0];
-           		//结束X坐标是视频宽度-弹幕X轴-字符串长度
-           		var endPos=videoWidth-itemLeft-charWidth;
+           		var charWidth=$('#'+id).width();
+           		//结束X坐标是弹幕X轴-视频宽度-字符串长度
+           		var endPos=parseInt(itemLeft)-parseInt(videoWidth)-parseInt(charWidth);
+           		console.log(endPos);
            		return endPos;
    			}
 
+   			//获得视频控件宽度
+   			function getVideoWidth(){return $('.container-left').width();}
 
+   			//获得视频控件left
+   			function getVideoLeft(){return $('.container-left').offset().left.toFixed(0);}
+
+   			//设置弹幕开始的X坐标
+   			function setStartX(id){
+   				var x=parseInt(getVideoWidth())+parseInt(getVideoLeft());
+   				console.log(x);
+   				$('#'+id).css('left',x+'px');
+   			}
 
    			//获得开始Y坐标
+   			//上一个弹幕的结束时间小于等于现在这个弹幕左端碰到屏幕左边缘的时间那么就不会碰撞
    			function getStartY(currentID,willID){
 
    			}
@@ -397,6 +410,7 @@
   					//获得结束坐标
   					var endX=getEndX(idRandomed);
   					//显示弹幕
+  					setStartX(idRandomed);
   					$('#'+idRandomed).css('top','300px');
   					displayBarrage(idRandomed,null,'300',endX);
   				}
