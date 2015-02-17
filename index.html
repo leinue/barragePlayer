@@ -174,15 +174,27 @@
       		//格式化,主要是格式化为HTML(div)
       		//class为div的类,,id为div的id,style为样式表
       		//在正式使用时class,id不推荐为空
-      		//vTime,index不能为空
+      		//vTime不能为空,如果index为空则返回vTime下最后一条弹幕
       		BarragePool.prototype.format=function(cls,id,style,vTime,index){
-      			if(vTime==null || index==null){return;}
-      			var singleBarrage=this.get(vTime,index);
+      			if(vTime==null){return;}
+      			var INDEX;
+      			if(index==null){
+      				//如果index为空,则取vTime下最后一条弹幕(total)
+      				INDEX=this.bp[vTime]['total'];
+      			}else{
+      				INDEX=index;
+      			}
+      			var singleBarrage=this.get(vTime,INDEX);
       			var html='<div ';
       			html+='class="'+cls+'" id="'+id+'" style="'+style+'">';
       			html+=singleBarrage['content'];
       			html+="</div>";
       			return html;
+      		}
+
+      		//遍历弹幕池
+      		BarragePool.prototype.each=function(){
+
       		}
 
 
@@ -221,11 +233,12 @@
       		//获取当前时间
       		function getCurrentTime(){
       			var myDate = new Date();
-      			var month=myDate.getMonth()+1;
+      			var month=myDate.getMonth()+1;//月份从0开始
       			var date=myDate.getDate();
       			var hours=myDate.getHours();
       			var minutes=myDate.getMinutes();
       			var seconds=myDate.getSeconds();
+      			//在日期时间前自动补0
       			month=(month<10)?'0'+month:month;
       			date=(date<10)?'0'+date:date;
       			hours=(hours<10)?'0'+hours:hours;
@@ -234,12 +247,15 @@
       			return myDate.getFullYear()+'-'+month+'-'+date+' '+hours+':'+minutes+':'+seconds;
       		}
 
+      		//获得弹幕输入框内容
+   			function getBarrageInput(){
+   				return $('.container-bottom input[type=text]').val();
+   			}
+
       		//在视频上显示弹幕
       		function displayBarrage(startX,startY,endX){
    				var top=(startX=='')?'100':startX;
    				var left=(startY=='')?'820':startY;
-
-   				console.log(top);
 
    				$('.barrage').css('left',left).css('top',top);
    				$('.barrage').animate({
@@ -262,11 +278,6 @@
            		return endPos;
    			}
 
-   			//获得弹幕输入框内容
-   			function getBarrageInput(){
-   				return $('.container-bottom input[type=text]').val();
-   			}
-
    			//绑定发送弹幕按钮的点击事件
    			$('.container-bottom input[type=button]').click(function(){
    				//获得输入的弹幕数据
@@ -274,7 +285,15 @@
    				//如果输入的弹幕不为空
    				if(inputBarrage!=null){
    					//在弹幕池里加入弹幕
-   					BP.add(videoCurrentTime,inputBarrage,getCurrentTime());
+   					var vct=videoCurrentTime;//这个时间一直在变化,所以需要一个变量记录
+   					if(vct==null){
+   						vct='0.0';
+   					}
+   					BP.add(vct,inputBarrage,getCurrentTime());
+   					console.log('vct=',vct);
+   					var barrageHTML=BP.format('barrage','hhh','',vct);
+   					console.log(barrageHTML);
+   					$('.container-left').append(barrageHTML);
    					console.log(getCurrentTime());
    				}
    			});
