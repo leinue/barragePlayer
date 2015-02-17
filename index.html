@@ -327,12 +327,21 @@
    					//在弹幕池里加入弹幕
    					var vct=videoCurrentTime;//这个时间一直在变化,所以需要一个变量记录
 
-   					if(vct==null){vct='0.0';}
+   					if(vct==null){vct='0.0';}//如果现行时间为空(一般是用户在视频还没开始的时候发送的弹幕),则置现行时间为0.0(不置0.0显示的是undefined)
 
+   					var idr=RandomID(16);//记录自动生成的ID
+
+   					//往弹幕池加入弹幕数据
    					BP.add(vct,inputBarrage,getCurrentTime());
-   					var barrageHTML=BP.format('barrage',RandomID(16),'',vct);
-   					console.log(BP.toJSON());
+   					//将本条弹幕格式化为HTML文本
+   					var barrageHTML=BP.format('barrage',idr,'border:1px solid rgb(255,255,255);padding:5px;',vct);
+   					//append进弹幕显示区域
    					$('.container-left').append(barrageHTML);
+
+   					var endX=getEndX(idr);
+
+   					//显示弹幕
+   					displayBarrage(idr,null,null,endX);
    				}
    			});
 
@@ -374,8 +383,10 @@
   					var barrageHTML=BP.format('barrage',idRandomed,'',videoCurrentTime);
   					//将格式化的HTML文本加到容器内
   					$('.container-left').append(barrageHTML);
+  					//获得结束坐标
+  					var endX=getEndX(idRandomed);
   					//显示弹幕
-  					displayBarrage(idRandomed,null,null,endPos);
+  					displayBarrage(idRandomed,null,null,endX);
   					console.log(barrageHTML);
   				}
   				
