@@ -235,6 +235,30 @@
 
       		/*******************************************弹幕控制*********************************************/
 
+      		//弹幕控制类
+      		//liefcycle为弹幕的运行时间,默认为5500
+      		function barrageControl(lifecycle){
+      			lifecycle=(lifecycle==null)?5500:lifecycle;
+      			this.total=0;//记录屏幕上的弹幕总数量
+      			this.collideCount=0;//记录碰撞次数
+      			this.currentBarrage=null;//记录现行载入的弹幕数据
+      			this.prevBarrage=null;//记录上一条载入完毕的弹幕
+      			this.barrageDisplayed=null;//记录所有被载入的弹幕数据
+      			this.danmakulifecycle=lifecycle;//记录弹幕的生命周期,默认为5500
+      		}
+
+      		//在视频上显示弹幕并让弹幕运动起来,不参与逻辑运算
+      		//id为弹幕的HTML id,startY是开始的纵坐标,endX是结束的橫坐标
+      		barrageControl.prototype.shiftDanmaku(id,startY,endX){
+      			var top=(startY==null)?'100':startY;
+
+   				$('#'+id).animate({
+           			left:endX+'px',
+           			top:top+'px'
+           		},this.danmakulifecycle,function(){
+           			$(this).hide();
+           		});
+      		}
       		/*******************************************弹幕控制*********************************************/
       		var media=document.getElementById("video-main");//获得播放器
       		var duration=media.duration;//获得视频时长
@@ -294,18 +318,6 @@
 				} 
 				return 'd' + randomChars;
 			}
-
-      		//在视频上显示弹幕
-      		function displayBarrage(id,startY,endX){
-   				var top=(startY==null)?'100':startY;
-
-   				$('#'+id).animate({
-           			left:endX+'px',
-           			top:top+'px'
-           		},5500,function(){
-           			$(this).hide();
-           		});
-   			}
 
    			//获得结束X坐标
    			function getEndX(id){
