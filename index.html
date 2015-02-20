@@ -13,7 +13,7 @@
 	</header>
 
 	<div class="container">
-		<div class="container-left">
+		<div class="container-left" id="danmaku-display">
 			<video id="video-main" src="ly.mp4" type="video/mp4" controls>
 				Your browser dosen't support HTML5 Video
 			</video>
@@ -239,12 +239,15 @@
       		//liefcycle为弹幕的运行时间,默认为5500
       		//videoWidth为视频宽度,默认为680
       		//dp为弹幕池对象
-      		function barrageControl(dp,lifecycle,videoWidth){
+      		//vc为视频容器id
+      		function barrageControl(dp,vc,lifecycle,videoWidth){
+      			if(dp==null){return false;}//如果弹幕池对象为空,则直接返回false
+
       			lifecycle=(lifecycle==null)?5500:lifecycle;
       			videoWidth=(videoWidth==null)?680:videoWidth;
 
-      			this.total=0;//记录屏幕上的弹幕总数量
-      			this.collideCount=0;//记录碰撞次数
+      			this.totalDanmaku=0;//记录屏幕上的弹幕总数量
+      			this.collideCount=4;//记录碰撞次数
       			this.currentBarrage=null;//记录现行载入的弹幕数据
       			this.prevBarrage=null;//记录上一条载入完毕的弹幕数据
       			this.barrageDisplayed=null;//记录所有被载入的弹幕数据
@@ -255,6 +258,8 @@
       			this.videoWidth=videoWidth;//记录视屏控件的宽度(像素),默认为680
 
       			this.danmakuPool=dp;//记录弹幕池对象
+
+      			this.vcID=vc;//记录视屏容器ID
       		}
 
       		//在视频上显示弹幕并让弹幕运动起来,不参与逻辑运算
@@ -322,20 +327,43 @@
 
    			//将弹幕数据push进视频区域
    			//meth为加载方式,如果为input表示从用户输入加载,如果为data表示从已有数据加载.区别在于从用户加载时会在用户输入的数据周围加黑框.默认为从已有数据处加载.
-   			barrageControl.prototype.push=function(method){
+   			//danmakuData为弹幕的文本数据
+   			//vct为视频播放的现行时间
+   			//videoOnPlaying记录视频是否正在播放,弹幕只有在视频播放期间才可以运动
+   			barrageControl.prototype.push=function(method,vct,danmakuData,videoOnPlaying){
    				//初始化弹幕样式,即是否有黑框
    				var style=(method==null || method=='data')?'':'border:1px solid rgb(255,255,255);padding:5px;';
 
    				//如果是从输入处加载则要先往弹幕池里添加数据然后再读出来.
    				if(!(method==null || method=='data')){
+   					//获得随机的弹幕数据HTML ID
+   					this.danmakuID=this.randomID(16);
    					//往弹幕池里添加数据
-   					this.danmakuPool.add(vct,inputBarrage,this.getCurrentTime());
+   					this.danmakuPool.add(vct,danmakuData,this.getCurrentTime());
+   					//将本条弹幕格式化为HTML文本
+   					var barrageHTML=BP.format('barrage',this.danmakuID,style,vct);
+   					//append进弹幕显示区域
+   					$('#'+this.vcID).append(barrageHTML);
+					//获得结束的X坐标
+   					var endX=this.getEndX();
+   					//设置开始的X坐标
+   					this.setStartX();
+   					if(videoOnPlaying){
+   						//让弹幕开始运动
+   						this.shiftDanmaku(null,endX);
+
+   						//视频上展示的弹幕数量加1
+   						this.totalDanmaku+=1;
+   						//更改现行弹幕的数据,包含vTime(VideoTime),以及vTime下弹幕的index
+   						this.currentBarrage={'vTime':vct,'index':this.danmakuPool.total};
+   					}
+   					
    				}else{
 
    				}
 
    				//记录弹幕HTML数据
-   				var danmakuHTML=BP.format('barrage',idr,style,vct);
+   				//var danmakuHTML=BP.format('barrage',idr,style,vct);
    			}
 
       		/*******************************************弹幕控制*********************************************/
@@ -406,7 +434,7 @@
       		/*******************************初始化弹幕流动控制器*******************************/
 
       		//初始化弹幕流动控制器类
-      		var danmakuControl=barrageControl();
+      		var danmakuControl=new barrageControl(BP,'danmaku-display');
 
       		/*******************************初始化弹幕流动控制器*******************************/
 
@@ -421,22 +449,9 @@
 
    					if(vct==null){vct='0.0';}//如果现行时间为空(一般是用户在视频还没开始的时候发送的弹幕),则置现行时间为0.0(不置0.0显示的是undefined)
 
-   					var idr=danmakuControl.RandomID(16);//记录自动生成的ID
+   					var idr=danmakuControl.randomID(16);//记录自动生成的ID
 
-   					//往弹幕池加入弹幕数据
-   					BP.add(vct,inputBarrage,getCurrentTime());
-   					//将本条弹幕格式化为HTML文本
-   					var barrageHTML=BP.format('barrage',idr,'border:1px solid rgb(255,255,255);padding:5px;',vct);
-   					//append进弹幕显示区域
-   					$('.container-left').append(barrageHTML);
-
-   					var endX=getEndX(idr);
-   					setStartX(idr);
-
-   					if(videoOnPlaying){
-   						//显示弹幕
-   						displayBarrage(idr,null,endX);
-   					}
+   					danmakuControl.push('input',vct,inputBarrage,videoOnPlaying);
    					
    				}
    			});
@@ -469,7 +484,7 @@
   				videoCurrentTime=vTime.toFixed(1);//修正时间,精确到0.1即可
   				timeRemaining=(duration-vTime).toFixed(1);//视频剩余时间
 
-  				//var endPos=getEndX('hhh1');
+  				/*//var endPos=getEndX('hhh1');
   				//获得现行时间轴下弹幕的总数量
   				var total=BP.getTotal(videoCurrentTime);
 
@@ -505,7 +520,7 @@
   							/*$('#'+idRandomed).animate({
   								top:collideTop+'px'
   							},10);//从新设置高度*/
-  							$('#'+idRandomed).css('top',collideTop+'px');
+  							/*$('#'+idRandomed).css('top',collideTop+'px');
   							displayBarrage(idRandomed,collideTop,endX);//弹幕开始滚动
   							danmakuAmount+=1;
   						}else{
@@ -523,7 +538,7 @@
   						danmakuAmount+=1;
   					}
   					
-  				}
+  				}*/
   				
   				//console.log(videoCurrentTime,timeRemaining);
 			}, false);
