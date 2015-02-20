@@ -139,7 +139,7 @@ header{
 .danmaku-table{
 	position: absolute;
 	font-size: 12px;
-	margin-left: -2px;
+	margin-left: 0px;
 	width: 300px;
 	margin-top: -2px;
 	height: 24px;
@@ -164,6 +164,7 @@ header{
 	width: 100px;
 	color: rgb(0,0,0);
 	height: 24px;
+	overflow: auto;
 }
 
 .danmaku-line:hover{

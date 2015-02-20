@@ -44,16 +44,7 @@
 				</div>
 				<div class="right-bottom-list">
 					<table class="danmaku-table">
-						<tr class="danmaku-line">
- 							<td class="danmaku-vtime">100</td>
- 							<td class="danmaku-comment">100</td>
-							<td class="danmaku-time">100</td>
-						</tr>
-						<tr class="danmaku-line">
- 							<td class="danmaku-vtime">100</td>
- 							<td class="danmaku-comment">100</td>
-							<td class="danmaku-time">100</td>
-						</tr>
+						
 					</table>
 				</div>
 			</div>
@@ -518,6 +509,11 @@
 
    			}
 
+   			//在右侧列表中添加弹幕数据
+   			function appendDanmakuIntoList(vtime,content,time){
+   				$('.danmaku-table').append('<tr class="danmaku-line"><td class="danmaku-vtime">'+vtime+'</td><td class="danmaku-comment">'+content+'</td><td class="danmaku-time">'+time+'</td></tr>');
+   			}
+
       		/********************************************函数库**********************************************/
 
       		var media=document.getElementById("video-main");//获得播放器
@@ -569,6 +565,7 @@
    					var vct=videoCurrentTime;//这个时间一直在变化,所以需要一个变量记录
    					if(vct==null){vct='0.0';}//如果现行时间为空(一般是用户在视频还没开始的时候发送的弹幕),则置现行时间为0.0(不置0.0显示的是undefined)
    					var idr=danmakuControl.randomID(16);//记录自动生成的ID
+   					appendDanmakuIntoList(vct,inputBarrage,danmakuControl.getCurrentTime().split(' ')[1]);
    					danmakuControl.push('input',vct,inputBarrage,videoOnPlaying);
    				}
    			});
@@ -609,7 +606,7 @@
   				for(var i=1;i<=total;i++){
   					//获得现行时间轴下的弹幕数据
   					currentDanmakuData=BP.get(videoCurrentTime,i);
-
+  					appendDanmakuIntoList(videoCurrentTime,currentDanmakuData['content'],BP.bp[videoCurrentTime][i]['time'].split(' ')[0]);
   					danmakuControl.push('data',videoCurrentTime,i,videoOnPlaying);
   				}
   				
