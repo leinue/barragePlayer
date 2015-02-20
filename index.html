@@ -394,68 +394,74 @@
    				this.barrageLoaded.push(this.prevDanmakuID);
    			}
 
+   			barrageControl.prototype.calculateOffset=function(){
+
+   			}
+
    			//将弹幕数据push进视频区域
    			//meth为加载方式,如果为input表示从用户输入加载,如果为data表示从已有数据加载.区别在于从用户加载时会在用户输入的数据周围加黑框.默认为从已有数据处加载.
    			//danmakuData为弹幕的文本数据
    			//vct为视频播放的现行时间
    			//videoOnPlaying记录视频是否正在播放,弹幕只有在视频播放期间才可以运动
+   			//如果method为空或者为data,那么danmakuData表示vct下弹幕的index
    			barrageControl.prototype.push=function(method,vct,danmakuData,videoOnPlaying){
    				//初始化弹幕样式,即是否有黑框
    				var style=(method==null || method=='data')?'':'border:1px solid rgb(255,255,255);padding:5px;';
 
+   				//获得随机的弹幕数据HTML ID
+   				this.danmakuID=this.randomID(16);
+
    				//如果是从输入处加载则要先往弹幕池里添加数据然后再读出来.
    				if(!(method==null || method=='data')){
-   					//获得随机的弹幕数据HTML ID
-   					this.danmakuID=this.randomID(16);
    					//往弹幕池里添加数据
    					this.danmakuPool.add(vct,danmakuData,this.getCurrentTime());
    					//将本条弹幕格式化为HTML文本
-   					var barrageHTML=BP.format('barrage',this.danmakuID,style,vct);
-   					//append进弹幕显示区域
-   					$('#'+this.vcID).append(barrageHTML);
-					//获得结束的X坐标
-   					var endX=this.getEndX();
-   					//设置开始的X坐标
-   					this.setStartX();
-   					
-   					//如果视频正在播放就开始计算弹幕位置并移动弹幕
-   					if(videoOnPlaying){
-   						//如果上一条弹幕为空,即当前弹幕槽为空则直接推送到视频控件并移动弹幕,否则要计算弹幕是否碰撞
-   						if(this.prevDanmakuID==null || this.totalDanmaku==0){
-   							//让弹幕开始运动
-   							this.shiftDanmaku(null,endX);
-   							//更新弹幕数据
-   							this.updateDanmakuData(vct);
-   						}else{
-   							console.log('开始计算是否碰撞');
-   							//如果碰撞,则重新计算startY.否则直接推送
-   							if(this.prevDanmakuEndTime(5500)<=this.getCurrentDanmakuToLeftTime()){
-   								this.collideCount+=1;//碰撞次数往上加1
-  								this.collideTop=this.danmakuHeight*this.collideCount;//碰撞元素的top为25*collideCount,25是弹幕的高度,可以更改
-  								//如果collideTop超出容器界限,则重置为100,collideCount重置为4;
-  								if(this.collideTop>=this.videoHeight+50){
-  									this.collideTop=100;
-  									this.collideCount=4;
-  								}
-  								this.setStartY();//设置弹幕开始的纵坐标
-  								this.shiftDanmaku(this.collideTop,endX);//弹幕开始滚动
-  								this.updateDanmakuData(vct);//更新弹幕数据
-   							}else{
-   								//让弹幕开始运动
-   								this.shiftDanmaku(null,endX);
-   								//更新弹幕数据
-   								this.updateDanmakuData(vct);
-   							}
-   						}
-   						
-   					}
-   					
+   					var barrageHTML=BP.format(this.danmakuClass,this.danmakuID,style,vct);
    				}else{
-   					
+   					//this.calculateOffset();
+   					//将本条弹幕格式化为HTML文本
+   					var barrageHTML=BP.format(this.danmakuClass,this.danmakuID,style,vct,danmakuData);
    				}
 
-   				//记录弹幕HTML数据
-   				//var danmakuHTML=BP.format('barrage',idr,style,vct);
+   				//append进弹幕显示区域
+   				$('#'+this.vcID).append(barrageHTML);
+				//获得结束的X坐标
+   				var endX=this.getEndX();
+   				//设置开始的X坐标
+   				this.setStartX();
+   					
+   				//如果视频正在播放就开始计算弹幕位置并移动弹幕
+   				if(videoOnPlaying){
+   					//如果上一条弹幕为空,即当前弹幕槽为空则直接推送到视频控件并移动弹幕,否则要计算弹幕是否碰撞
+   					if(this.prevDanmakuID==null || this.totalDanmaku==0){
+   						this.setStartY();//设置弹幕开始的纵坐标
+   						//让弹幕开始运动
+   						this.shiftDanmaku(null,endX);
+   						//更新弹幕数据
+   						this.updateDanmakuData(vct);
+   					}else{
+   						//如果碰撞,则重新计算startY.否则直接推送
+   						if(this.prevDanmakuEndTime(3500)<=this.getCurrentDanmakuToLeftTime()){
+   							this.collideCount+=1;//碰撞次数往上加1
+  							this.collideTop=this.danmakuHeight*this.collideCount;//碰撞元素的top为25*collideCount,25是弹幕的高度,可以更改
+  							//如果collideTop超出容器界限,则重置为100,collideCount重置为4;
+  							if(this.collideTop>=this.videoHeight+50){
+  								this.collideTop=100;
+  								this.collideCount=4;
+  							}
+  							this.setStartY();//设置弹幕开始的纵坐标
+  							this.shiftDanmaku(this.collideTop,endX);//弹幕开始滚动
+  							this.updateDanmakuData(vct);//更新弹幕数据
+   						}else{
+   							this.setStartY();//设置弹幕开始的纵坐标
+   							this.shiftDanmaku(this.collideTop,endX);//让弹幕开始运动
+   							this.updateDanmakuData(vct);//更新弹幕数据
+   						}
+   					}
+   				}
+
+   			//记录弹幕HTML数据
+   			//var danmakuHTML=BP.format('barrage',idr,style,vct);
    			}
 
       		/*******************************************弹幕控制*********************************************/
@@ -500,7 +506,14 @@
       		BP.add('0.3',"蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤蛤","2013");
       		BP.add('0.6','hahahahahahaha','2015');
       		BP.add('0.6','hahahahhhhhhhhhhhhahahaha','2015');
+      		BP.add('0.6','初始化弹幕池及弹幕数据','2015');
+      		BP.add('0.7','初始化弹幕流动控制器','2015');
+      		BP.add('0.8','新建弹幕池对象','2015');
+      		BP.add('0.9','记录视频是否已经在播放','2015');
+      		BP.add('1.0','获得视频开始时间','2015');
+      		BP.add('1.2','如果输入的弹幕不为空','2015');
 
+      		console.log(videoCurrentTime);
       		//console.log(BP.toJSON());
 
       		/******************************初始化弹幕池及弹幕数据******************************/
@@ -543,6 +556,10 @@
        			});
    			}
 
+   			eventListener('play');
+      		eventListener('pause');
+      		eventListener('ended');
+
    			//监视现在播放进度和剩余时间
 			media.addEventListener("timeupdate",function(){
 				videoOnPlaying=true;
@@ -554,22 +571,17 @@
   				var total=BP.getTotal(videoCurrentTime);
 
   				var currentDanmakuData;//记录现行弹幕数据
-  				var idRandomed;//记录被随机生成的ID
 
   				//根据时间轴下的弹幕数量进行循环显示
   				for(var i=1;i<=total;i++){
   					//获得现行时间轴下的弹幕数据
   					currentDanmakuData=BP.get(videoCurrentTime,i);
 
-  					danmakuControl.push('data',videoCurrentTime,currentDanmakuData['content'],videoOnPlaying);
+  					danmakuControl.push('data',videoCurrentTime,i,videoOnPlaying);
   				}
   				
   				//console.log(videoCurrentTime,timeRemaining);
 			}, false);
-
-      		eventListener('play');
-      		eventListener('pause');
-      		eventListener('ended');
       		
 		});
 	</script>
