@@ -283,7 +283,6 @@
       		//id为消失的弹幕DIV ID
       		barrageControl.prototype.initDanmakuData=function(id){
 				$('#'+id).hide();
-           		console.log('totalDanmaku',this.totalDanmaku);
            		if(this.totalDanmaku>0){
            			this.totalDanmaku-=1;//屏幕上弹幕的数量减去1
            		}else{
@@ -297,7 +296,6 @@
       		//id为弹幕的HTML id,startY是开始的纵坐标,endX是结束的橫坐标
       		barrageControl.prototype.shiftDanmaku=function(startY,endX){
       			var top=(startY==null)?'100':startY;
-      			console.log('call endX',endX);
    				$('#'+this.danmakuID).animate({
            			left:endX+'px',
            			top:top+'px'
@@ -440,10 +438,8 @@
   									this.collideCount=4;
   								}
   								this.setStartY();//设置弹幕开始的纵坐标
-  								//$('#'+idRandomed).css('top',collideTop+'px');
-  								console.log('click',endX);
   								this.shiftDanmaku(this.collideTop,endX);//弹幕开始滚动
-  								this.updateDanmakuData(vct);
+  								this.updateDanmakuData(vct);//更新弹幕数据
    							}else{
    								//让弹幕开始运动
    								this.shiftDanmaku(null,endX);
@@ -547,11 +543,6 @@
        			});
    			}
 
-   			var prevID=null;//记录上一条弹幕数据的ID,初始值为null
-   			var danmakuAmount=0;//记录视频上当前显示的弹幕数量
-   			var collideCount=4;//记录碰撞次数,被碰撞弹幕的top将由这个数字决定,4代表从top=100开始
-   			var collideTop=100;//记录碰撞弹幕的top
-
    			//监视现在播放进度和剩余时间
 			media.addEventListener("timeupdate",function(){
 				videoOnPlaying=true;
@@ -559,61 +550,19 @@
   				videoCurrentTime=vTime.toFixed(1);//修正时间,精确到0.1即可
   				timeRemaining=(duration-vTime).toFixed(1);//视频剩余时间
 
-  				/*//var endPos=getEndX('hhh1');
   				//获得现行时间轴下弹幕的总数量
   				var total=BP.getTotal(videoCurrentTime);
 
-  				var currentDanmaku;//记录现行弹幕数据
+  				var currentDanmakuData;//记录现行弹幕数据
   				var idRandomed;//记录被随机生成的ID
 
   				//根据时间轴下的弹幕数量进行循环显示
   				for(var i=1;i<=total;i++){
   					//获得现行时间轴下的弹幕数据
-  					currentDanmaku=BP.get(videoCurrentTime,i);
+  					currentDanmakuData=BP.get(videoCurrentTime,i);
 
-  					//随机生成一个ID
-  					idRandomed=RandomID(16);
-  					prevID=idRandomed;
-  					//将现行弹幕数据格式化为HTML文本
-  					var barrageHTML=BP.format('barrage',idRandomed,'',videoCurrentTime,i);
-
-  					console.log(barrageHTML);
-
-  					//将格式化的HTML文本加到容器内
-  					$('.container-left').append(barrageHTML);
-
-  					//获得结束坐标
-  					var endX=getEndX(idRandomed);
-  					//显示弹幕
-  					setStartX(idRandomed);//设置开始X坐标
-  					//如果当前屏幕显示的弹幕数量不为空,即当前屏幕有弹幕,则开始计算是否要移位;否则直接推送出去.
-  					if(danmakuAmount!==0){
-  						if(prevDanmakuEndTime(prevID)<=getCurrentDanmakuToLeftTime(idRandomed)){
-  							console.log('碰撞了');
-  							collideCount+=1;//碰撞次数往上加1
-  							collideTop=25*collideCount;//碰撞元素的top为25*collideCount,25是弹幕的高度,可以更改
-  							/*$('#'+idRandomed).animate({
-  								top:collideTop+'px'
-  							},10);//从新设置高度*/
-  							/*$('#'+idRandomed).css('top',collideTop+'px');
-  							displayBarrage(idRandomed,collideTop,endX);//弹幕开始滚动
-  							danmakuAmount+=1;
-  						}else{
-  							conosle.log('没有碰撞');
-  							collideTop=25*collideCount;
-  							$('#'+idRandomed).css('top',collideTop+'px');
-  							displayBarrage(idRandomed,collideTop,endX);//弹幕开始滚动
-  							danmakuAmount+=1;
-  						}
-  					}else{
-  						//设置Y坐标,Y坐标默认就是100
-  						console.log(collideTop);
-  						$('#'+idRandomed).css('top',collideTop+'px');
-  						displayBarrage(idRandomed,collideTop,endX);
-  						danmakuAmount+=1;
-  					}
-  					
-  				}*/
+  					danmakuControl.push('data',videoCurrentTime,currentDanmakuData['content'],videoOnPlaying);
+  				}
   				
   				//console.log(videoCurrentTime,timeRemaining);
 			}, false);
