@@ -249,7 +249,7 @@
 
       			this.totalDanmaku=0;//记录屏幕上的弹幕总数量
       			this.collideCount=4;//记录碰撞次数
-      			this.barrageLoaded=null;//记录现行载入的弹幕数据ID,堆
+      			this.barrageLoaded=[];//记录现行载入的弹幕数据ID,堆
       			this.prevBarrage=null;//记录上一条载入完毕的弹幕数据
       			this.barrageDisplayed=null;//记录所有被载入的弹幕数据
       			this.danmakulifecycle=lifecycle;//记录弹幕的生命周期,默认为5500
@@ -338,6 +338,26 @@
       			return myDate.getFullYear()+'-'+month+'-'+date+' '+hours+':'+minutes+':'+seconds;
       		}
 
+      		//获得当前弹幕左端碰到屏幕左边缘的时间
+   			//时间=路程(宽度-字符串长度[像素])/速度,速度=路程(宽度)/时间
+   			//最终公式:((视频宽度-字符串宽度)*弹幕运行时间)/视频宽度[宽度单位为像素]
+   			//duration为弹幕运行时间,默认为5500毫秒
+   			//prevID为上一条弹幕的html ID,如果为空则表示当前弹幕ID.
+   			barrageControl.prototype.getCurrentDanmakuToLeftTime=function(duration,prevID){
+   				prevID=(prevID==null)?this.danmakuID:prevID;
+   				var vWidth=getVideoWidth();
+   				var charLength=$('#'+this.danmakuID).width();
+   				duration=(duration==null)?this.danmakulifecycle:duration;
+   				return ((parseInt(vWidth)-parseInt(charLength))*parseInt(duration))/parseInt(vWidth);
+   			}
+
+   			//获得上一条弹幕的结束时间
+   			//参数duration表示弹幕运行时间,单位毫秒,默认值是5500
+   			//计算方法和获取当前弹幕运行时间一样,实际应用中duration应该小于<=默认的5500毫秒
+   			barrageControl.prototype.prevDanmakuEndTime=function(duration){
+   				return getCurrentDanmakuToLeftTime(duration,this.prevDanmakuID);
+   			}
+
    			//将弹幕数据push进视频区域
    			//meth为加载方式,如果为input表示从用户输入加载,如果为data表示从已有数据加载.区别在于从用户加载时会在用户输入的数据周围加黑框.默认为从已有数据处加载.
    			//danmakuData为弹幕的文本数据
@@ -371,7 +391,9 @@
    						//视频上展示的弹幕数量加1
    						this.totalDanmaku+=1;
    						//更改现行弹幕的数据,包含vTime(VideoTime),以及vTime下弹幕的index
-   						this.currentBarrage={'vTime':vct,'index':this.danmakuPool.total};
+   						//因为这是从用户输入处加载,所以他的index就是vTime下的总数
+   						this.currentBarrage={'vTime':vct,'index':this.danmakuPool.getTotal(vct)};
+   						console.log(this.danmakuPool.bp[vct]['total']);
    						//置上一条弹幕的数据
    						this.prevDanmakuID=this.danmakuID;
    						//将已经载入的弹幕IDpush进堆
@@ -398,24 +420,6 @@
 
    			//获得视频控件left
    			function getVideoLeft(){return $('.container-left').offset().left.toFixed(0);}
-
-   			//获得当前弹幕左端碰到屏幕左边缘的时间
-   			//时间=路程(宽度-字符串长度[像素])/速度,速度=路程(宽度)/时间
-   			//最终公式:((视频宽度-字符串宽度)*弹幕运行时间)/视频宽度[宽度单位为像素]
-   			//duration为弹幕运行时间,默认为5500毫秒
-   			function getCurrentDanmakuToLeftTime(id,duration){
-   				var vWidth=getVideoWidth();
-   				var charLength=$('#'+id).width();
-   				duration=(duration==null)?'5500':duration;
-   				return ((parseInt(vWidth)-parseInt(charLength))*parseInt(duration))/parseInt(vWidth);
-   			}
-
-   			//获得上一条弹幕的结束时间
-   			//参数duration表示弹幕运行时间,单位毫秒,默认值是5500
-   			//计算方法和获取当前弹幕运行时间一样,实际应用中duration应该小于<=默认的5500毫秒
-   			function prevDanmakuEndTime(id,duration){
-   				return getCurrentDanmakuToLeftTime(id,duration);
-   			}
 
    			//获得开始Y坐标
    			//上一个弹幕的结束时间小于等于现在这个弹幕左端碰到屏幕左边缘的时间那么就不会碰撞
