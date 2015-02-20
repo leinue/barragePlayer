@@ -301,7 +301,7 @@
            			$(this).hide();
            		});
 
-           		//this.initDanmakuData();
+           		this.barrageLoaded.pop();
       		}
 
       		//随机生成弹幕数据的HTML ID
@@ -463,8 +463,10 @@
   									var danmakuRightToVideoBorderRight=parseInt(videoLeft)+parseInt(this.videoWidth)-parseInt(danmakuLeft);
   									//如果正在运行的弹幕right到视频右边的距离>=当前弹幕的长度,重置collideTop
   									if(danmakuRightToVideoBorderRight>=$('#'+this.danmakuID).width()){
-  										this.collideTop=100;
+  										console.log(danmakuRightToVideoBorderRight,$('#'+this.danmakuID).width());
+  										this.collideTop=100*(i+1);
   										this.collideCount=4;
+  										break;
   										//this.totalDanmaku=0;
   									}
   								}
