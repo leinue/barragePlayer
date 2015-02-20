@@ -136,6 +136,41 @@ header{
 	border-bottom: 1px solid rgb(224,224,224);
 }
 
+.danmaku-table{
+	position: absolute;
+	font-size: 12px;
+	margin-left: -2px;
+	width: 300px;
+	margin-top: -2px;
+	height: 24px;
+	overflow-y:auto;
+}
+
+.danmaku-vtime{
+	padding-left: 4px;
+	width: 50px;
+	color: rgb(0,0,0);
+	height: 24px;
+}
+
+.danmaku-comment{
+	padding-left: 3px;
+	width: 154px;
+	height: 24px;
+}
+
+.danmaku-time{
+	padding-left: 4px;
+	width: 100px;
+	color: rgb(0,0,0);
+	height: 24px;
+}
+
+.danmaku-line:hover{
+	background: rgb(204,225,255);
+	height: 24px;
+}
+
 .right-bottom-top ul{
 	font-size: 14px;
 	list-style: none;
