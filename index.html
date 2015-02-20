@@ -244,7 +244,7 @@
       			if(dp==null || vc==null || dc==null){return false;}//如果弹幕池对象为空,则直接返回false
 
       			lifecycle=(lifecycle==null)?5500:lifecycle;
-      			var videoWidth=$('#'+vc).width;
+      			var videoWidth=$('#'+vc).width();
       			videoWidth=(videoWidth==null)?680:videoWidth;
 
       			this.totalDanmaku=0;//记录屏幕上的弹幕总数量
@@ -300,7 +300,7 @@
 
       		//获得结束X坐标
    			barrageControl.prototype.getEndX=function(){
-				//弹幕x轴
+				//计算弹幕x轴
            		var itemLeft=$('#'+this.danmakuID).offset().left.toFixed(0);
            		//字符串的长度
            		var charWidth=$('#'+this.danmakuID).width();
@@ -342,20 +342,35 @@
    			//时间=路程(宽度-字符串长度[像素])/速度,速度=路程(宽度)/时间
    			//最终公式:((视频宽度-字符串宽度)*弹幕运行时间)/视频宽度[宽度单位为像素]
    			//duration为弹幕运行时间,默认为5500毫秒
-   			//prevID为上一条弹幕的html ID,如果为空则表示当前弹幕ID.
-   			barrageControl.prototype.getCurrentDanmakuToLeftTime=function(duration,prevID){
-   				prevID=(prevID==null)?this.danmakuID:prevID;
-   				var vWidth=getVideoWidth();
-   				var charLength=$('#'+this.danmakuID).width();
+   			//ID为上一条弹幕的html ID,如果为空则表示当前弹幕ID.
+   			barrageControl.prototype.getCurrentDanmakuToLeftTime=function(duration,ID){
+   				ID=(ID==null)?this.danmakuID:prevID;
    				duration=(duration==null)?this.danmakulifecycle:duration;
-   				return ((parseInt(vWidth)-parseInt(charLength))*parseInt(duration))/parseInt(vWidth);
+   				var charLength=$('#'+ID).width();
+   				console.log('charLength',charLength);
+   				return ((parseInt(this.videoWidth)-parseInt(charLength))*parseInt(duration))/parseInt(this.videoWidth);
    			}
 
    			//获得上一条弹幕的结束时间
    			//参数duration表示弹幕运行时间,单位毫秒,默认值是5500
    			//计算方法和获取当前弹幕运行时间一样,实际应用中duration应该小于<=默认的5500毫秒
    			barrageControl.prototype.prevDanmakuEndTime=function(duration){
-   				return getCurrentDanmakuToLeftTime(duration,this.prevDanmakuID);
+   				console.log('prevID',this.prevDanmakuID);
+   				return this.getCurrentDanmakuToLeftTime(duration,this.prevDanmakuID);
+   			}
+
+   			//用来更新弹幕加载后改变的数据,在shiftDanmaku方法之后必须使用这个方法
+   			//参数vct代表现行视频时间
+   			barrageControl.prototype.updateDanmakuData=function(vct){
+				//视频上展示的弹幕数量加1
+   				this.totalDanmaku+=1;
+   				//更改现行弹幕的数据,包含vTime(VideoTime),以及vTime下弹幕的index
+   				//因为这是从用户输入处加载,所以他的index就是vTime下的总数
+   				this.currentBarrage={'vTime':vct,'index':this.danmakuPool.getTotal(vct)};
+   				//置上一条弹幕的数据
+   				this.prevDanmakuID=this.danmakuID;
+   				//将已经载入的弹幕IDpush进堆
+   				this.barrageLoaded.push(this.prevDanmakuID);
    			}
 
    			//将弹幕数据push进视频区域
@@ -381,27 +396,33 @@
    					var endX=this.getEndX();
    					//设置开始的X坐标
    					this.setStartX();
-   					//如果上一条弹幕为空,即当前弹幕槽为空则直接显示
-   					if(this.prevDanmakuID==null){
-
-   					}
+   					
+   					//如果视频正在播放就开始计算弹幕位置并移动弹幕
    					if(videoOnPlaying){
-   						//让弹幕开始运动
-   						this.shiftDanmaku(null,endX);
-   						//视频上展示的弹幕数量加1
-   						this.totalDanmaku+=1;
-   						//更改现行弹幕的数据,包含vTime(VideoTime),以及vTime下弹幕的index
-   						//因为这是从用户输入处加载,所以他的index就是vTime下的总数
-   						this.currentBarrage={'vTime':vct,'index':this.danmakuPool.getTotal(vct)};
-   						console.log(this.danmakuPool.bp[vct]['total']);
-   						//置上一条弹幕的数据
-   						this.prevDanmakuID=this.danmakuID;
-   						//将已经载入的弹幕IDpush进堆
-   						this.barrageLoaded.push(this.prevDanmakuID);
+   						//如果上一条弹幕为空,即当前弹幕槽为空则直接推送到视频控件并移动弹幕,否则要计算弹幕是否碰撞
+   						if(this.prevDanmakuID==null){
+   							//让弹幕开始运动
+   							this.shiftDanmaku(null,endX);
+   							//更新弹幕数据
+   							this.updateDanmakuData(vct);
+   						}else{
+   							console.log('开始计算是否碰撞');
+   							console.log(this.prevDanmakuEndTime(5500),this.getCurrentDanmakuToLeftTime());
+   							//如果碰撞,则重新计算startY.否则直接推送
+   							if(this.prevDanmakuEndTime(4000)<=this.getCurrentDanmakuToLeftTime()){
+   								//console.log(this.prevDanmakuEndTime(3000),this.getCurrentDanmakuToLeftTime());
+   							}else{
+   								//让弹幕开始运动
+   								this.shiftDanmaku(null,endX);
+   								//更新弹幕数据
+   								this.updateDanmakuData(vct);
+   							}
+   						}
+   						
    					}
    					
    				}else{
-
+   					
    				}
 
    				//记录弹幕HTML数据
