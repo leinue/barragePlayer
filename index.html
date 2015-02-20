@@ -237,29 +237,37 @@
 
       		//弹幕控制类
       		//liefcycle为弹幕的运行时间,默认为5500
-      		//videoWidth为视频宽度,默认为680
       		//dp为弹幕池对象
       		//vc为视频容器id
-      		function barrageControl(dp,vc,lifecycle,videoWidth){
-      			if(dp==null){return false;}//如果弹幕池对象为空,则直接返回false
+      		//dc为弹幕DIV的总类,用来控制总体的暂停或开始
+      		function barrageControl(dp,vc,dc,lifecycle){
+      			if(dp==null || vc==null || dc==null){return false;}//如果弹幕池对象为空,则直接返回false
 
       			lifecycle=(lifecycle==null)?5500:lifecycle;
+      			var videoWidth=$('#'+vc).width;
       			videoWidth=(videoWidth==null)?680:videoWidth;
 
       			this.totalDanmaku=0;//记录屏幕上的弹幕总数量
       			this.collideCount=4;//记录碰撞次数
-      			this.currentBarrage=null;//记录现行载入的弹幕数据
+      			this.barrageLoaded=null;//记录现行载入的弹幕数据ID,堆
       			this.prevBarrage=null;//记录上一条载入完毕的弹幕数据
       			this.barrageDisplayed=null;//记录所有被载入的弹幕数据
       			this.danmakulifecycle=lifecycle;//记录弹幕的生命周期,默认为5500
 
+      			this.currentBarrage=null;//记录现行弹幕的数据
+
       			this.danmakuID=null;//记录当前弹幕的ID(HTML)
+      			this.prevDanmakuID=null;//记录上一条弹幕的ID(HTML)
 
       			this.videoWidth=videoWidth;//记录视屏控件的宽度(像素),默认为680
 
       			this.danmakuPool=dp;//记录弹幕池对象
 
       			this.vcID=vc;//记录视屏容器ID
+
+      			this.danmakuClass=dc;//记录弹幕DIV的总类
+      			
+      			this.collideTop=$('#'+this.vcID).offset().top.toFixed(0);//记录碰撞的TOP位置,刚开始未碰撞时为视频容器的TOP
       		}
 
       		//在视频上显示弹幕并让弹幕运动起来,不参与逻辑运算
@@ -308,6 +316,11 @@
    				$('#'+this.danmakuID).css('left',x+'px');
    			}
 
+   			//设置弹幕开始运行的纵坐标
+   			barrageControl.prototype.setStartY=function(){
+   				$('#'+this.danmakuID).css('top',this.collideTop+'px');
+   			}
+
    			//获取当前时间
       		barrageControl.prototype.getCurrentTime=function(){
       			var myDate = new Date();
@@ -348,14 +361,21 @@
    					var endX=this.getEndX();
    					//设置开始的X坐标
    					this.setStartX();
+   					//如果上一条弹幕为空,即当前弹幕槽为空则直接显示
+   					if(this.prevDanmakuID==null){
+
+   					}
    					if(videoOnPlaying){
    						//让弹幕开始运动
    						this.shiftDanmaku(null,endX);
-
    						//视频上展示的弹幕数量加1
    						this.totalDanmaku+=1;
    						//更改现行弹幕的数据,包含vTime(VideoTime),以及vTime下弹幕的index
    						this.currentBarrage={'vTime':vct,'index':this.danmakuPool.total};
+   						//置上一条弹幕的数据
+   						this.prevDanmakuID=this.danmakuID;
+   						//将已经载入的弹幕IDpush进堆
+   						this.barrageLoaded.push(this.prevDanmakuID);
    					}
    					
    				}else{
@@ -434,7 +454,8 @@
       		/*******************************初始化弹幕流动控制器*******************************/
 
       		//初始化弹幕流动控制器类
-      		var danmakuControl=new barrageControl(BP,'danmaku-display');
+      		//弹幕池对象为BP,视频容器为danmaku-display,弹幕DIV总类为barrage
+      		var danmakuControl=new barrageControl(BP,'danmaku-display','barrage');
 
       		/*******************************初始化弹幕流动控制器*******************************/
 
@@ -446,13 +467,9 @@
    				if(inputBarrage!=null){
    					//在弹幕池里加入弹幕
    					var vct=videoCurrentTime;//这个时间一直在变化,所以需要一个变量记录
-
    					if(vct==null){vct='0.0';}//如果现行时间为空(一般是用户在视频还没开始的时候发送的弹幕),则置现行时间为0.0(不置0.0显示的是undefined)
-
    					var idr=danmakuControl.randomID(16);//记录自动生成的ID
-
    					danmakuControl.push('input',vct,inputBarrage,videoOnPlaying);
-   					
    				}
    			});
 
