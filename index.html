@@ -276,13 +276,11 @@
 
       			this.danmakuClass=dc;//记录弹幕DIV的总类
       			
-      			
       		}
 
       		//每一条弹幕消失之后回调的函数
       		//id为消失的弹幕DIV ID
-      		barrageControl.prototype.initDanmakuData=function(id){
-				$('#'+id).hide();
+      		barrageControl.prototype.initDanmakuData=function(){
            		if(this.totalDanmaku>0){
            			this.totalDanmaku-=1;//屏幕上弹幕的数量减去1
            		}else{
@@ -448,6 +446,28 @@
   							if(this.collideTop>=this.videoHeight+50){
   								this.collideTop=100;
   								this.collideCount=4;
+  								//this.totalDanmaku=0;
+  							}else{
+  								//遍历barrageLoaded,看它们right到视频右边的距离是否>=当前弹幕的长度
+  								//如果大于等于则重置collideTop
+  								for(var i=0;i<this.barrageLoaded.length;i++){
+  									var danmakuLeft=$('#'+this.barrageLoaded[i]).offset().left;
+  									var danmakuWidth=$('#'+this.barrageLoaded[i]).width();
+  									//弹幕右边到视频右边的距离等于视频容器left+视频容器宽度-弹幕的left
+  									var videoLeft=$('#'+this.vcID).offset().left.toFixed(0);
+  									
+  									/*console.log('danmakuLeft',danmakuLeft);
+  									console.log('danmakuWidth',danmakuWidth);
+  									console.log('videoLeft',videoLeft);
+  									console.log('videoWidth',this.videoWidth);*/
+  									var danmakuRightToVideoBorderRight=parseInt(videoLeft)+parseInt(this.videoWidth)-parseInt(danmakuLeft);
+  									//如果正在运行的弹幕right到视频右边的距离>=当前弹幕的长度,重置collideTop
+  									if(danmakuRightToVideoBorderRight>=$('#'+this.danmakuID).width()){
+  										this.collideTop=100;
+  										this.collideCount=4;
+  										//this.totalDanmaku=0;
+  									}
+  								}
   							}
   							this.setStartY();//设置弹幕开始的纵坐标
   							this.shiftDanmaku(this.collideTop,endX);//弹幕开始滚动
@@ -510,8 +530,6 @@
       		BP.add('0.7','初始化弹幕流动控制器','2015');
       		BP.add('0.8','新建弹幕池对象','2015');
       		BP.add('0.9','记录视频是否已经在播放','2015');
-      		BP.add('1.0','获得视频开始时间','2015');
-      		BP.add('1.2','如果输入的弹幕不为空','2015');
 
       		console.log(videoCurrentTime);
       		//console.log(BP.toJSON());
