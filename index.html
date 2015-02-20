@@ -344,10 +344,9 @@
    			//duration为弹幕运行时间,默认为5500毫秒
    			//ID为上一条弹幕的html ID,如果为空则表示当前弹幕ID.
    			barrageControl.prototype.getCurrentDanmakuToLeftTime=function(duration,ID){
-   				ID=(ID==null)?this.danmakuID:prevID;
+   				ID=(ID==null)?this.danmakuID:ID;
    				duration=(duration==null)?this.danmakulifecycle:duration;
    				var charLength=$('#'+ID).width();
-   				console.log('charLength',charLength);
    				return ((parseInt(this.videoWidth)-parseInt(charLength))*parseInt(duration))/parseInt(this.videoWidth);
    			}
 
@@ -355,7 +354,6 @@
    			//参数duration表示弹幕运行时间,单位毫秒,默认值是5500
    			//计算方法和获取当前弹幕运行时间一样,实际应用中duration应该小于<=默认的5500毫秒
    			barrageControl.prototype.prevDanmakuEndTime=function(duration){
-   				console.log('prevID',this.prevDanmakuID);
    				return this.getCurrentDanmakuToLeftTime(duration,this.prevDanmakuID);
    			}
 
