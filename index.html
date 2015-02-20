@@ -244,11 +244,19 @@
       			if(dp==null || vc==null || dc==null){return false;}//如果弹幕池对象为空,则直接返回false
 
       			lifecycle=(lifecycle==null)?5500:lifecycle;
+
       			var videoWidth=$('#'+vc).width();
+      			var videoHeight=$('#'+vc).height();
       			videoWidth=(videoWidth==null)?680:videoWidth;
+      			videoHeight=(videoHeight==null)?520:videoHeight;
 
       			this.totalDanmaku=0;//记录屏幕上的弹幕总数量
+
       			this.collideCount=4;//记录碰撞次数
+      			this.danmakuHeight=25;//记录弹幕div的高度,默认为25
+      			//弹幕高度*碰撞次数等于弹幕纵坐标
+				this.collideTop=$('#'+vc).offset().top.toFixed(0);//记录碰撞的TOP位置,刚开始未碰撞时为视频容器的TOP
+
       			this.barrageLoaded=[];//记录现行载入的弹幕数据ID,堆
       			this.prevBarrage=null;//记录上一条载入完毕的弹幕数据
       			this.barrageDisplayed=null;//记录所有被载入的弹幕数据
@@ -259,28 +267,45 @@
       			this.danmakuID=null;//记录当前弹幕的ID(HTML)
       			this.prevDanmakuID=null;//记录上一条弹幕的ID(HTML)
 
-      			this.videoWidth=videoWidth;//记录视屏控件的宽度(像素),默认为680
+      			this.videoWidth=videoWidth;//记录视频控件的宽度(像素),默认为680
+      			this.videoHeight=videoHeight;//记录视频控件的高度,默认为520
 
       			this.danmakuPool=dp;//记录弹幕池对象
 
-      			this.vcID=vc;//记录视屏容器ID
+      			this.vcID=vc;//记录视频容器ID
 
       			this.danmakuClass=dc;//记录弹幕DIV的总类
       			
-      			this.collideTop=$('#'+this.vcID).offset().top.toFixed(0);//记录碰撞的TOP位置,刚开始未碰撞时为视频容器的TOP
+      			
+      		}
+
+      		//每一条弹幕消失之后回调的函数
+      		//id为消失的弹幕DIV ID
+      		barrageControl.prototype.initDanmakuData=function(id){
+				$('#'+id).hide();
+           		console.log('totalDanmaku',this.totalDanmaku);
+           		if(this.totalDanmaku>0){
+           			this.totalDanmaku-=1;//屏幕上弹幕的数量减去1
+           		}else{
+           			this.totalDanmaku=0;//初始化屏幕上弹幕数量
+           			this.prevDanmakuID=null;//置上一条弹幕ID为空
+           			this.danmakuID=null;//置当前弹幕ID为空
+           		}
       		}
 
       		//在视频上显示弹幕并让弹幕运动起来,不参与逻辑运算
       		//id为弹幕的HTML id,startY是开始的纵坐标,endX是结束的橫坐标
       		barrageControl.prototype.shiftDanmaku=function(startY,endX){
       			var top=(startY==null)?'100':startY;
-
+      			console.log('call endX',endX);
    				$('#'+this.danmakuID).animate({
            			left:endX+'px',
            			top:top+'px'
            		},this.danmakulifecycle,function(){
            			$(this).hide();
            		});
+
+           		//this.initDanmakuData();
       		}
 
       		//随机生成弹幕数据的HTML ID
@@ -398,17 +423,27 @@
    					//如果视频正在播放就开始计算弹幕位置并移动弹幕
    					if(videoOnPlaying){
    						//如果上一条弹幕为空,即当前弹幕槽为空则直接推送到视频控件并移动弹幕,否则要计算弹幕是否碰撞
-   						if(this.prevDanmakuID==null){
+   						if(this.prevDanmakuID==null || this.totalDanmaku==0){
    							//让弹幕开始运动
    							this.shiftDanmaku(null,endX);
    							//更新弹幕数据
    							this.updateDanmakuData(vct);
    						}else{
    							console.log('开始计算是否碰撞');
-   							console.log(this.prevDanmakuEndTime(5500),this.getCurrentDanmakuToLeftTime());
    							//如果碰撞,则重新计算startY.否则直接推送
-   							if(this.prevDanmakuEndTime(4000)<=this.getCurrentDanmakuToLeftTime()){
-   								//console.log(this.prevDanmakuEndTime(3000),this.getCurrentDanmakuToLeftTime());
+   							if(this.prevDanmakuEndTime(5500)<=this.getCurrentDanmakuToLeftTime()){
+   								this.collideCount+=1;//碰撞次数往上加1
+  								this.collideTop=this.danmakuHeight*this.collideCount;//碰撞元素的top为25*collideCount,25是弹幕的高度,可以更改
+  								//如果collideTop超出容器界限,则重置为100,collideCount重置为4;
+  								if(this.collideTop>=this.videoHeight+50){
+  									this.collideTop=100;
+  									this.collideCount=4;
+  								}
+  								this.setStartY();//设置弹幕开始的纵坐标
+  								//$('#'+idRandomed).css('top',collideTop+'px');
+  								console.log('click',endX);
+  								this.shiftDanmaku(this.collideTop,endX);//弹幕开始滚动
+  								this.updateDanmakuData(vct);
    							}else{
    								//让弹幕开始运动
    								this.shiftDanmaku(null,endX);
